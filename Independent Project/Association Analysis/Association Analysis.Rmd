@@ -1,0 +1,118 @@
+---
+title: "Association Analysis"
+author: "Paul Ndirangu"
+date: "July 26, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+# We first we install the required arules library 
+#
+install.packages("arules")
+
+# Loading the arules library
+#
+library(arules)
+```
+
+## Loading the dataset.
+```{r}
+# Loading our Supermarket's dataset from our csv file
+# ---
+path<-"D:/Moringa/Class/R/IP/IP Week 14/Independent Project/Association Analysis/Supermarket_Sales_Dataset II.csv" 
+
+Dataset<-read.transactions(path, sep=',')
+
+head(Dataset, 10)
+View(Dataset)
+```
+
+```{r}
+# Verifying the object's class
+# ---
+# This should show us transactions as the type of data that we will need
+# ---
+# 
+class(Dataset)
+```
+
+```{r}
+# If we wanted to preview the items that make up our dataset,
+# alternatively we can do the following
+# ---
+# 
+items<-as.data.frame(itemLabels(Dataset))
+colnames(items) <- "Item"
+head(items, 10) 
+
+# distribution of the item sets (no. of items purchased in each transaction), etc.
+# ---
+# 
+summary(Dataset)
+dev.off()
+```
+
+```{r}
+# some operation in percentage terms of the total transactions 
+# 
+itemFrequency(Dataset[, 40:50],type = "absolute")
+round(itemFrequency(Dataset[, 40:50],type = "relative")*100,2)
+
+# Displaying top 10 most common items in the transactions dataset 
+# and the items whose relative importance is at least 10%
+# 
+par(mfrow = c(1, 2))
+
+# plot the frequency of items
+itemFrequencyPlot(Dataset, topN = 10,col="darkgreen")
+itemFrequencyPlot(Dataset, support = 0.01,col="darkred")
+```
+We observe the frequencies of various products with french fries having the highest value(1282) for the top ten products.
+
+
+## Implementing the Solution
+```{r}
+# Building a model based on association rules 
+# using the apriori function 
+# ---
+# We use Min Support as 0.001 and confidence as 0.8
+# ---
+# 
+rules <- apriori (Dataset, parameter = list(supp = 0.001, conf = 0.8))
+rules
+```
+We acheive a total of 74 rules using a confidence level of 0.8 and a support of 0.001
+
+
+```{r}
+# ---
+# 
+summary(rules)
+
+# Observing rules built in our model i.e. first 5 model rules
+# ---
+# 
+inspect(rules[1:5])
+
+
+# Interpretation of the first rule:
+# ---
+# If someone buys frozen smoothie, they are 88.9% likely to buy mineral water.
+```
+Inspecting the first 5 rules we notice that for rule 1, if a customer buys frozen smoothie or spinach, The are more likely to buy Mineral Water.
+This is supported by a confidence level of 88.9% and a support of 0.001066524.
+
+
+```{r}
+# We can also use different criteria such as: (by = "lift" or by = "support")
+# 
+rules<-sort(rules, by="confidence", decreasing=TRUE)
+inspect(rules[1:5])
+```
+Using confidence as the criteria we get the first rule as;
+If a customer buys French Fries, Mushroom cream sauce or pasta, they 
+were more likely to buy escalope. 
+This is backed by a confidence level of 100% and a support of 0.001066524
