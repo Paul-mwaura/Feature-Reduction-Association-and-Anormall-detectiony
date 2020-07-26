@@ -1,1 +1,1 @@
-# Feature-Reduction-Association-and-Anormall-detectiony
+# Feature-Reduction-Association-and-Anormaly-detection
